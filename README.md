@@ -1,4 +1,4 @@
-![ci](https://github.com/mathieu-benoit/dotnet-grpc-api/workflows/ci/badge.svg?branch=main)
+![ci](https://github.com/mathieu-benoit/cartservice/workflows/ci/badge.svg?branch=main)
 
 This `cartservice` is isolating one of the app for the `Online Boutique` repo from Google (aka [GoogleCloudPlatform/microservices-demo](https://github.com/GoogleCloudPlatform/microservices-demo)). The intent is here is to illustrate advanced concepts with a .NET app on Kubernetes.
 
