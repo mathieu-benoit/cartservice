@@ -26,7 +26,7 @@ namespace cartservice
         private static string serverHostName = "localhost";
         private static int port = 7070;
 
-        [Fact]
+        //[Fact]
         public async Task GetItem_NoAddItemBefore_EmptyCartReturned()
         {
             string userId = Guid.NewGuid().ToString();
@@ -51,7 +51,7 @@ namespace cartservice
             Assert.Equal(new Cart(), cart);
         }
 
-        [Fact]
+        //[Fact]
         public async Task AddItem_ItemExists_Updated()
         {
             string userId = Guid.NewGuid().ToString();
@@ -93,7 +93,7 @@ namespace cartservice
             await client.EmptyCartAsync(new EmptyCartRequest{ UserId = userId });
         }
 
-        [Fact]
+        //[Fact]
         public async Task AddItem_New_Inserted()
         {
             string userId = Guid.NewGuid().ToString();
