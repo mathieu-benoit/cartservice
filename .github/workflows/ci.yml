@@ -1,0 +1,90 @@
+name: ci
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'README.md'
+      - '.github/dependabot.yml'
+  pull_request:
+jobs:
+  job:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Prepare environment variables
+        run: |
+          shortSha=`echo ${GITHUB_SHA} | cut -c1-7`
+          echo "IMAGE_TAG=$shortSha" >> $GITHUB_ENV
+          imageBaseName=${{ secrets.CONTAINER_REGISTRY_HOST_NAME }}/${{ secrets.CONTAINER_REGISTRY_PROJECT_ID }}/${{ secrets.CONTAINER_REGISTRY_NAME }}
+          echo "IMAGE_BASE_NAME=$imageBaseName" >> $GITHUB_ENV
+          echo "IMAGE_NAME=$imageBaseName/boutique/cartservice:$shortSha" >> $GITHUB_ENV
+      - name: Replace base images registry
+        run: |
+          sed -i "s,FROM mcr.microsoft.com,FROM ${IMAGE_BASE_NAME},g" Dockerfile
+      - name: Log into container registry
+        env:
+          CONTAINER_REGISTRY_PUSH_PRIVATE_KEY: ${{ secrets.CONTAINER_REGISTRY_PUSH_PRIVATE_KEY }}
+        run: |
+          echo "$CONTAINER_REGISTRY_PUSH_PRIVATE_KEY" > ${HOME}/gcloud.json
+          gcloud auth activate-service-account --key-file=${HOME}/gcloud.json
+          gcloud auth configure-docker ${{ secrets.CONTAINER_REGISTRY_HOST_NAME }} --quiet
+      - name: Build container
+        run: |
+          docker build --tag ${IMAGE_NAME} .
+          imageSize=$(printf %.2f "$(($(docker image inspect ${IMAGE_NAME} --format='{{.Size}}') * 10**2 / $(printf '%5.0f\n' 1e6)))e-2")
+          echo "IMAGE_SIZE=$imageSize" >> $GITHUB_ENV
+      - name: Dockle
+        run: |
+          docker run -v /var/run/docker.sock:/var/run/docker.sock --rm goodwithtech/dockle:latest --exit-code 1 --exit-level fatal ${IMAGE_NAME}
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.IMAGE_NAME }}
+          format: 'template'
+          template: '@/contrib/sarif.tpl'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: 'trivy-results.sarif'
+      - name: Run container locally as a test
+        run: |
+          docker run -d -p 8080:8080 --read-only --cap-drop=ALL --user=1000 ${IMAGE_NAME}
+      - name: Installing KinD cluster
+        uses: engineerd/setup-kind@v0.5.0
+      - name: Configuring the KinD installation
+        run: |
+          kubectl cluster-info --context kind-kind
+          kind get kubeconfig --internal >$HOME/.kube/config
+          kubectl get nodes
+      - name: Load image on the nodes of the KinD cluster
+        run: |
+          kind load docker-image ${IMAGE_NAME} --name=kind
+      - name: Deploy and test Kubernetes manifests in KinD cluster
+        run: |
+          kubectl create deployment cartservice --image=${IMAGE_NAME}
+          kubectl wait --for=condition=available --timeout=120s deployment/cartservice
+          kubectl get all
+          status=$(kubectl get pods -l app=cartservice -o 'jsonpath={.items[0].status.phase}')
+          if [ $status != 'Running' ]; then echo "Pod not running!" 1>&2; fi
+      - name: Push image in container registry
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          docker push ${IMAGE_NAME}
+          imageDigest=$(docker inspect ${IMAGE_NAME} --format='{{index .RepoDigests 0}}')
+          echo "IMAGE_DIGEST=$imageDigest" >> $GITHUB_ENV
+      - name: Create Release
+        uses: actions/create-release@v1
+        if: ${{ github.event_name == 'push' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.IMAGE_TAG }}
+          release_name: ${{ env.IMAGE_TAG }}
+          draft: false
+          prerelease: false
+          body: |
+            ${{ env.IMAGE_DIGEST }} - ${{ env.IMAGE_SIZE }}MB
+          
