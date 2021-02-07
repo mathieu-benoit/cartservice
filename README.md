@@ -71,3 +71,9 @@ gh secret set CONTAINER_REGISTRY_PROJECT_ID -b"${artifactRegistryProjectId}"
 gh secret set CONTAINER_REGISTRY_NAME -b"${artifactRegistryName}"
 gh secret set CONTAINER_REGISTRY_HOST_NAME -b"${artifactRegistryLocation}-docker.pkg.dev"
 ```
+
+## Monitoring with Cloud Operations
+
+```
+gcloud monitoring dashboards create --config-from-file=gcloud/monitoring/dashboard.yaml
+```

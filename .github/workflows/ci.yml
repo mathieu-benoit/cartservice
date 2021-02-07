@@ -6,6 +6,7 @@ on:
     paths-ignore:
       - 'README.md'
       - '.github/dependabot.yml'
+      - 'gcloud/**'
   pull_request:
 jobs:
   job:
