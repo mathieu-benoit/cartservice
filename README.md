@@ -1,6 +1,6 @@
 ![ci](https://github.com/mathieu-benoit/cartservice/workflows/ci/badge.svg?branch=main)
 
-This `cartservice` is isolating one of the app for the `Online Boutique` repo from Google (aka [GoogleCloudPlatform/microservices-demo](https://github.com/GoogleCloudPlatform/microservices-demo)). The intent is here is to illustrate advanced concepts with a .NET app on Kubernetes.
+This `cartservice` is isolating one of the apps for the `Online Boutique` repo from Google (aka [GoogleCloudPlatform/microservices-demo](https://github.com/GoogleCloudPlatform/microservices-demo)). The intent here is to illustrate advanced concepts with this .NET app on Kubernetes.
 
 This app has those specifications:
 - Is a .NET 5
@@ -23,6 +23,8 @@ _Note: this repo, as my playground for demo purposes, is also a good place for m
 cd src
 docker build -t cartservice .
 docker run -d -p 7070:7070 cartservice
+
+# Run it witout privileges
 docker run -p 7070:7070 \
   --network host \
   --read-only \
