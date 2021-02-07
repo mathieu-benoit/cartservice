@@ -20,16 +20,15 @@ WORKDIR /app/src
 RUN dotnet restore cartservice.csproj -r linux-musl-x64
 COPY src/ .
 
-
 FROM build AS unittests
 WORKDIR /app
-COPY tests/cartservice.tests.csproj ./tests/
-WORKDIR /app/tests
-RUN dotnet restore cartservice.tests.csproj
-COPY tests/ .
+COPY tests/unittests/cartservice.unittests.csproj ./tests/unittests/
+WORKDIR /app/tests/unittests
+RUN dotnet restore cartservice.unittests.csproj
+COPY tests/unittests/ .
 # Fix the issue on Debian 10: https://github.com/dotnet/dotnet-docker/issues/2470
 ENV COMPlus_EnableDiagnostics=0
-RUN dotnet test cartservice.tests.csproj --no-restore
+RUN dotnet test cartservice.unittests.csproj --no-restore
 
 
 FROM build AS publish

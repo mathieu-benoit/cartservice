@@ -2,7 +2,7 @@ using Xunit;
 
 namespace api.unittests
 {
-    public class UnitTest1
+    public class DummyTests
     {
         [Fact]
         public void Test1()
