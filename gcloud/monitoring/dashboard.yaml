@@ -240,9 +240,38 @@ mosaicLayout:
                 perSeriesAligner: ALIGN_PERCENTILE_50
               filter: metric.type="istio.io/service/server/response_latencies" resource.type="istio_canonical_service"
                 resource.label."canonical_service_name"="cartservice"
+              secondaryAggregation: {}
         timeshiftDuration: 0s
         yAxis:
           label: y1Axis
           scale: LINEAR
     width: 6
+    yPos: 15
+  - height: 5
+    widget:
+      title: Server Request Count for cartservice [SUM]
+      xyChart:
+        chartOptions:
+          mode: COLOR
+        dataSets:
+        - legendTemplate: ${metric.labels.response_code}
+          minAlignmentPeriod: 60s
+          plotType: STACKED_BAR
+          timeSeriesQuery:
+            timeSeriesFilter:
+              aggregation:
+                crossSeriesReducer: REDUCE_SUM
+                groupByFields:
+                - metric.label."response_code"
+                - resource.label."canonical_service_name"
+                perSeriesAligner: ALIGN_SUM
+              filter: metric.type="istio.io/service/server/request_count" resource.type="istio_canonical_service"
+                resource.label."canonical_service_name"="cartservice"
+              secondaryAggregation: {}
+        timeshiftDuration: 0s
+        yAxis:
+          label: y1Axis
+          scale: LOG10
+    width: 6
+    xPos: 6
     yPos: 15
