@@ -85,7 +85,7 @@ gcloud redis instances describe cart --region=us-east4 --format='get(host)'
 # Set the `REDIS_ADDR` environment variable with that `host` IP address.
 ```
 
-_Note: there is few requirements about how and where creating your Memorystore instance to be able to use with GKE, [see here for more information](https://cloud.google.com/memorystore/docs/redis/connect-redis-instance-gke)._
+_Note: there is few requirements about how and where create your Memorystore instance to be able to use it with GKE, [see here for more information](https://cloud.google.com/memorystore/docs/redis/connect-redis-instance-gke)._
 
 ## Monitoring with Cloud Operations
 
