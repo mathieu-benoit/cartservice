@@ -137,7 +137,7 @@ namespace cartservice.cartstore
                     }
                     else
                     {
-                        existingItem.Quantity += 1;
+                        existingItem.Quantity += quantity;
                     }
                 }
 
