@@ -16,16 +16,19 @@ Here are some differences you will find in this current repository which are not
 - `.github/dependabot.yml`
 - Unprivilege container in `Dockerfile` (non root, etc.)
 - Unit tests run in `Dockerfile`
-- CI with Advanced tests and controls in GitHub actions: `.github/workflows/ci.yaml`
+- CI in GitHub actions with advanced tests and controls against the container: `.github/workflows/ci.yaml` (unit tests, `docker run`, `dockle`, `trivy` and `kind`)
 - Container pushed in Google Artifact Registry
 - Cloud Monitoring dashboard as code in `gcloud/monitoring`
 
 In addition to this, the deployment part for this application in Kubernetes is defined [in that other repository](https://github.com/mathieu-benoit/my-kubernetes-deployments), with some differences from the original one too:
+- Resources `Limits` and `Requests` have been reviewed thanks to `VerticalAutoScaler` to be more accurate
 - Memory store (redis) instead of `redis` as container
+- `livenessProbe` is just a simple and more accurate `tcp` ping
 - `NetworkPolicies` (`calico`) to add more security between pods communications
 - `Pod Security Context` in Kubernetes' `Deployment` manifest (non root, etc.)
 - Kubernetes `Service Account` as manifest file
 - Anthos Service Mesh to inject `istio-proxy` sidecar
+- CI in GitHub actions with advanced tests and controls against the Kubernetes manifests (`kubescan` and `conftest`/`opa`)
 
 ## Build and run locally
 
