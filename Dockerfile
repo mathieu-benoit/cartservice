@@ -45,9 +45,8 @@ RUN GRPC_HEALTH_PROBE_VERSION=v0.3.6 && \
     chmod +x /bin/grpc_health_probe
 WORKDIR /app
 COPY --from=publish /app/src/out ./
-ENV ASPNETCORE_URLS http://*:7070
 EXPOSE 7070
-# OPT OUT OF Diagnostic pipeline so we can run readonly.
-ENV COMPlus_EnableDiagnostics=0
+ENV COMPlus_EnableDiagnostics=0 \
+    ASPNETCORE_URLS=http://*:7070
 USER 1000
 ENTRYPOINT ["/app/cartservice"]
