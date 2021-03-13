@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # https://mcr.microsoft.com/v2/dotnet/sdk/tags/list
-FROM mcr.microsoft.com/dotnet/sdk:5.0.200 AS build
+FROM mcr.microsoft.com/dotnet/sdk:5.0.201 AS build
 WORKDIR /app
 COPY src/cartservice.csproj ./src/
 WORKDIR /app/src
@@ -39,7 +39,7 @@ RUN dotnet publish cartservice.csproj -p:PublishSingleFile=true -r linux-musl-x6
 
 
 # https://mcr.microsoft.com/v2/dotnet/runtime-deps/tags/list
-FROM mcr.microsoft.com/dotnet/runtime-deps:5.0.3-alpine3.12-amd64
+FROM mcr.microsoft.com/dotnet/runtime-deps:5.0.4-alpine3.12-amd64
 RUN GRPC_HEALTH_PROBE_VERSION=v0.3.6 && \
     wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 && \
     chmod +x /bin/grpc_health_probe
