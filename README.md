@@ -5,7 +5,7 @@ This `cartservice` is isolating one of the apps for the `Online Boutique` repo f
 _Note: this repo, as my playground for demo purposes, is also a good place for me to test things and give back to the original repo [by contributing to it](https://github.com/GoogleCloudPlatform/microservices-demo/pulls?q=is%3Apr+author%3Amathieu-benoit)._
 
 This app has those specifications:
-- Is a .NET 5
+- Is a .NET 5 app
 - Has `Dockerfile` for Linux
 - Is a `gRPC` endpoint
 - Talks to `redis`
