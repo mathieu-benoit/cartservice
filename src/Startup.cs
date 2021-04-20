@@ -38,7 +38,6 @@ namespace cartservice
                 cartStore = new LocalCartStore();
             }
 
-            // Initialize the redis store
             cartStore.InitializeAsync().GetAwaiter().GetResult();
             Console.WriteLine("Initialization completed");
 
