@@ -77,7 +77,7 @@ jobs:
           imageDigest=$(docker inspect ${IMAGE_NAME} --format='{{index .RepoDigests 0}}')
           echo "IMAGE_DIGEST=$imageDigest" >> $GITHUB_ENV
       - name: Create Release
-        uses: actions/create-release@v1
+        uses: actions/create-release@v1.1.4
         if: ${{ github.event_name == 'push' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
