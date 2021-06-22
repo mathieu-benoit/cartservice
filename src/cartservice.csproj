@@ -8,7 +8,7 @@
     <Protobuf Include="protos\Cart.proto" GrpcServices="Server"/>
     
     <PackageReference Include="Grpc.AspNetCore" Version="2.38.0" />
-    <PackageReference Include="Grpc.HealthCheck" Version="2.38.0" />
+    <PackageReference Include="Grpc.HealthCheck" Version="2.38.1" />
     <PackageReference Include="StackExchange.Redis" Version="2.2.4" />
   </ItemGroup>
 </Project>
