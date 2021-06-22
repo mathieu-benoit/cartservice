@@ -40,7 +40,6 @@ namespace cartservice
 
             cartStore.InitializeAsync().GetAwaiter().GetResult();
             Console.WriteLine("Initialization completed");
-
             services.AddSingleton<ICartStore>(cartStore);
 
             services.AddGrpc();
