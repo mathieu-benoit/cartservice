@@ -26,15 +26,11 @@ COPY tests/unittests/cartservice.unittests.csproj ./tests/unittests/
 WORKDIR /app/tests/unittests
 RUN dotnet restore cartservice.unittests.csproj
 COPY tests/unittests/ .
-# Fix the issue on Debian 10: https://github.com/dotnet/dotnet-docker/issues/2470
-ENV COMPlus_EnableDiagnostics=0
 RUN dotnet test cartservice.unittests.csproj --no-restore
 
 
 FROM build AS publish
 WORKDIR /app/src
-# Fix the issue on Debian 10: https://github.com/dotnet/dotnet-docker/issues/2470
-ENV COMPlus_EnableDiagnostics=0
 RUN dotnet publish cartservice.csproj -p:PublishSingleFile=true -r linux-musl-x64 --self-contained true -p:PublishTrimmed=True -p:TrimMode=Link -c release -o out --no-restore
 
 
