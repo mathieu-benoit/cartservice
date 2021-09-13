@@ -83,7 +83,7 @@ gh secret set CONTAINER_REGISTRY_HOST_NAME -b"${artifactRegistryLocation}-docker
 
 ```
 gcloud services enable redis.googleapis.com
-gcloud redis instances create cart --size=1 --region=us-east4 --zone=us-east4-a --redis-version=redis_5_0
+gcloud redis instances create cart --size=1 --region=us-east4 --zone=us-east4-a --redis-version=redis_6_x
 gcloud redis instances describe cart --region=us-east4 --format='get(host)'
 # Set the `REDIS_ADDR` environment variable with that `host` IP address.
 ```
