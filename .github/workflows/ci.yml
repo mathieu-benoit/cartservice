@@ -92,5 +92,5 @@ jobs:
           draft: false
           prerelease: false
           body: |
-            Image: ${IMAGE_NAME}
+            Image: ${{ env.IMAGE_NAME }}
             Size: ${{ env.IMAGE_SIZE }}MB
