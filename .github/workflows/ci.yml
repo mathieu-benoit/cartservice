@@ -45,7 +45,7 @@ jobs:
           format: 'template'
           template: '@/contrib/sarif.tpl'
           output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
+          severity: 'CRITICAL'
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v1
         with:
@@ -53,6 +53,10 @@ jobs:
       - name: Run container locally as a test
         run: |
           docker run -d -p 8080:8080 --read-only --cap-drop=ALL --user=1000 ${IMAGE_NAME}
+      - name: gcloud scan
+        run: |
+          gcloud artifacts docker images scan '${IMAGE_NAME}' --format='value(response.scan)' > scan_id.txt
+          gcloud artifacts docker images list-vulnerabilities $(cat scan_id.txt) --format='value(vulnerability.effectiveSeverity)' | if grep -Fxq MEDIUM; then echo 'Failed vulnerability check' && exit 1; else exit 0; fi
       #- name: Installing KinD cluster
       #  uses: engineerd/setup-kind@v0.5.0
       #- name: Configuring the KinD installation

@@ -17,7 +17,7 @@ Here are some differences you will find in this current repository which are not
 - Unprivilege container in `Dockerfile` (non root, etc.)
 - Unit tests run in `Dockerfile`
 - CI in GitHub actions with advanced tests and controls against the container: `.github/workflows/ci.yaml` (unit tests, `docker run`, `dockle`, `trivy` and `kind`)
-- Container pushed in Google Artifact Registry
+- Container pushed in Google Artifact Registry (Container Analysis scan too)
 - Cloud Monitoring dashboard as code in `gcloud/monitoring`
 
 In addition to this, the deployment part for this application in Kubernetes is defined [in that other repository](https://github.com/mathieu-benoit/my-kubernetes-deployments), with some differences from the original one too:
@@ -68,9 +68,13 @@ gcloud artifacts repositories add-iam-policy-binding $artifactRegistryName \
     --location $artifactRegistryLocation \
     --member "serviceAccount:$saId" \
     --role roles/artifactregistry.writer
+
+gcloud projects add-iam-policy-binding $artifactRegistryProjectId \
+    --member=serviceAccount:$saId \
+    --role=roles/ondemandscanning.admin
+
 gcloud iam service-accounts keys create ~/tmp/$saName.json \
     --iam-account $saId
-
 gh auth login --web
 gh secret set CONTAINER_REGISTRY_PUSH_PRIVATE_KEY < ~/tmp/$saName.json
 rm ~/tmp/$saName.json
