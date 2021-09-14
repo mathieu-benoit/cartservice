@@ -23,15 +23,14 @@ jobs:
       - name: replace base images registry
         run: |
           sed -i "s,FROM mcr.microsoft.com,FROM ${IMAGE_BASE_NAME},g" Dockerfile
-      - name: login to container registry
-        env:
-          CONTAINER_REGISTRY_PUSH_PRIVATE_KEY: ${{ secrets.CONTAINER_REGISTRY_PUSH_PRIVATE_KEY }}
-        run: |
-          echo "$CONTAINER_REGISTRY_PUSH_PRIVATE_KEY" > ${HOME}/gcloud.json
-          gcloud auth activate-service-account --key-file=${HOME}/gcloud.json
-          gcloud auth configure-docker ${{ secrets.CONTAINER_REGISTRY_HOST_NAME }} --quiet
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          version: latest
+          project_id: ${{ secrets.CONTAINER_REGISTRY_PROJECT_ID }}
+          service_account_key: ${{ secrets.CONTAINER_REGISTRY_PUSH_PRIVATE_KEY }}
       - name: build container
         run: |
+          gcloud auth configure-docker ${{ secrets.CONTAINER_REGISTRY_HOST_NAME }} --quiet
           docker build --tag ${IMAGE_NAME} .
           imageSize=$(printf %.2f "$(($(docker image inspect ${IMAGE_NAME} --format='{{.Size}}') * 10**2 / $(printf '%5.0f\n' 1e6)))e-2")
           echo "IMAGE_SIZE=$imageSize" >> $GITHUB_ENV
