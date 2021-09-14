@@ -23,7 +23,7 @@ jobs:
       - name: replace base images registry
         run: |
           sed -i "s,FROM mcr.microsoft.com,FROM ${IMAGE_BASE_NAME},g" Dockerfile
-      - name: Log into container registry
+      - name: login to container registry
         env:
           CONTAINER_REGISTRY_PUSH_PRIVATE_KEY: ${{ secrets.CONTAINER_REGISTRY_PUSH_PRIVATE_KEY }}
         run: |
@@ -38,7 +38,7 @@ jobs:
       - name: dockle
         run: |
           docker run -v /var/run/docker.sock:/var/run/docker.sock --rm goodwithtech/dockle:latest --exit-code 1 --exit-level fatal ${IMAGE_NAME}
-      - name: Run Trivy vulnerability scanner
+      - name: run trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.IMAGE_NAME }}
@@ -46,7 +46,7 @@ jobs:
           template: '@/contrib/sarif.tpl'
           output: 'trivy-results.sarif'
           severity: 'CRITICAL'
-      - name: upload Trivy scan results to GitHub Security tab
+      - name: upload trivy scan results to GitHub security tab
         uses: github/codeql-action/upload-sarif@v1
         with:
           sarif_file: 'trivy-results.sarif'
@@ -55,7 +55,7 @@ jobs:
           docker run -d -p 8080:8080 --read-only --cap-drop=ALL --user=1000 ${IMAGE_NAME}
       - name: gcloud scan
         run: |
-          sudo apt-get install google-cloud-sdk-local-extract
+          sudo apt-get update && sudo apt-get install google-cloud-sdk-local-extract
           gcloud artifacts docker images scan '${IMAGE_NAME}' --format='value(response.scan)' > scan_id.txt
           gcloud artifacts docker images list-vulnerabilities $(cat scan_id.txt) --format='value(vulnerability.effectiveSeverity)' | if grep -Fxq MEDIUM; then echo 'Failed vulnerability check' && exit 1; else exit 0; fi
       #- name: Installing KinD cluster
