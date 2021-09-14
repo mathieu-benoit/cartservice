@@ -13,14 +13,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.3.4
-      - name: Prepare environment variables
+      - name: prepare environment variables
         run: |
           shortSha=`echo ${GITHUB_SHA} | cut -c1-7`
           echo "IMAGE_TAG=$shortSha" >> $GITHUB_ENV
           imageBaseName=${{ secrets.CONTAINER_REGISTRY_HOST_NAME }}/${{ secrets.CONTAINER_REGISTRY_PROJECT_ID }}/${{ secrets.CONTAINER_REGISTRY_NAME }}
           echo "IMAGE_BASE_NAME=$imageBaseName" >> $GITHUB_ENV
           echo "IMAGE_NAME=$imageBaseName/boutique/cartservice:$shortSha" >> $GITHUB_ENV
-      - name: Replace base images registry
+      - name: replace base images registry
         run: |
           sed -i "s,FROM mcr.microsoft.com,FROM ${IMAGE_BASE_NAME},g" Dockerfile
       - name: Log into container registry
@@ -30,12 +30,12 @@ jobs:
           echo "$CONTAINER_REGISTRY_PUSH_PRIVATE_KEY" > ${HOME}/gcloud.json
           gcloud auth activate-service-account --key-file=${HOME}/gcloud.json
           gcloud auth configure-docker ${{ secrets.CONTAINER_REGISTRY_HOST_NAME }} --quiet
-      - name: Build container
+      - name: build container
         run: |
           docker build --tag ${IMAGE_NAME} .
           imageSize=$(printf %.2f "$(($(docker image inspect ${IMAGE_NAME} --format='{{.Size}}') * 10**2 / $(printf '%5.0f\n' 1e6)))e-2")
           echo "IMAGE_SIZE=$imageSize" >> $GITHUB_ENV
-      - name: Dockle
+      - name: dockle
         run: |
           docker run -v /var/run/docker.sock:/var/run/docker.sock --rm goodwithtech/dockle:latest --exit-code 1 --exit-level fatal ${IMAGE_NAME}
       - name: Run Trivy vulnerability scanner
@@ -46,15 +46,16 @@ jobs:
           template: '@/contrib/sarif.tpl'
           output: 'trivy-results.sarif'
           severity: 'CRITICAL'
-      - name: Upload Trivy scan results to GitHub Security tab
+      - name: upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v1
         with:
           sarif_file: 'trivy-results.sarif'
-      - name: Run container locally as a test
+      - name: run container locally as a test
         run: |
           docker run -d -p 8080:8080 --read-only --cap-drop=ALL --user=1000 ${IMAGE_NAME}
       - name: gcloud scan
         run: |
+          sudo apt-get install google-cloud-sdk-local-extract
           gcloud artifacts docker images scan '${IMAGE_NAME}' --format='value(response.scan)' > scan_id.txt
           gcloud artifacts docker images list-vulnerabilities $(cat scan_id.txt) --format='value(vulnerability.effectiveSeverity)' | if grep -Fxq MEDIUM; then echo 'Failed vulnerability check' && exit 1; else exit 0; fi
       #- name: Installing KinD cluster
@@ -74,13 +75,13 @@ jobs:
       #    kubectl get all
       #    status=$(kubectl get pods -l app=cartservice -o 'jsonpath={.items[0].status.phase}')
       #    if [ $status != 'Running' ]; then echo "Pod not running!" 1>&2; fi
-      - name: Push image in container registry
+      - name: push image in container registry
         if: ${{ github.event_name == 'push' }}
         run: |
           docker push ${IMAGE_NAME}
           imageDigest=$(docker inspect ${IMAGE_NAME} --format='{{index .RepoDigests 0}}')
           echo "IMAGE_DIGEST=$imageDigest" >> $GITHUB_ENV
-      - name: Create Release
+      - name: create release
         uses: actions/create-release@v1.1.4
         if: ${{ github.event_name == 'push' }}
         env:
