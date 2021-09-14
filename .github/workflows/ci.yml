@@ -91,5 +91,5 @@ jobs:
           draft: false
           prerelease: false
           body: |
-            ${{ env.IMAGE_DIGEST }} - ${{ env.IMAGE_SIZE }}MB
-          
+            Digest: ${{ env.IMAGE_DIGEST }}
+            Size: ${{ env.IMAGE_SIZE }}MB
