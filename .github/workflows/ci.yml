@@ -81,8 +81,6 @@ jobs:
         if: ${{ github.event_name == 'push' }}
         run: |
           docker push ${IMAGE_NAME}
-          imageDigest=$(docker inspect ${IMAGE_NAME} --format='{{index .RepoDigests 0}}')
-          echo "IMAGE_DIGEST=$imageDigest" >> $GITHUB_ENV
       - name: create release
         uses: actions/create-release@v1.1.4
         if: ${{ github.event_name == 'push' }}
@@ -94,5 +92,5 @@ jobs:
           draft: false
           prerelease: false
           body: |
-            Digest: ${{ env.IMAGE_DIGEST }}
+            Image: ${IMAGE_NAME}
             Size: ${{ env.IMAGE_SIZE }}MB
