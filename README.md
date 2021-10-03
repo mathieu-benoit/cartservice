@@ -54,27 +54,48 @@ Requirements in GCP:
 
 Setup the service Account for GitHub actions:
 ```
-artifactRegistryProjectId=FIXME
-artifactRegistryName=FIXME
-artifactRegistryLocation=FIXME
+# Setup the dedicated project
+projectName=cartservice
+randomSuffix=$(shuf -i 100-999 -n 1)
+projectId=$projectName-$randomSuffix
+folderId=FIXME
+gcloud projects create $projectId \
+    --folder $folderId \
+    --name $projectName
+projectNumber="$(gcloud projects describe $projectId --format='get(projectNumber)')"
+gcloud config set project $projectId
+gcloud beta billing accounts list
+billingAccountId=FIXME
+gcloud beta billing projects link $projectId \
+    --billing-account $billingAccountId
 
-gcloud config set project $artifactRegistryProjectId
-
+# Setup Service account
 saName=gha-containerregistry-push-sa
 saId=$saName@$artifactRegistryProjectId.iam.gserviceaccount.com
 gcloud iam service-accounts create $saName \
     --display-name=$saName
+gcloud iam service-accounts keys create ~/tmp/$saName.json \
+    --iam-account $saId
+
+# Setup Artifact Registry
+artifactRegistryProjectId=FIXME
+artifactRegistryName=FIXME
+artifactRegistryLocation=FIXME
+gcloud artifacts repositories add-iam-policy-binding $containerRegistryRepository \
+    --project=$containerRegistryProjectId \
+    --location=$containerRegistryLocation \
+    --member=serviceAccount:$cloudBuildSa \
+    --role=roles/artifactregistry.writer
 gcloud artifacts repositories add-iam-policy-binding $artifactRegistryName \
     --location $artifactRegistryLocation \
     --member "serviceAccount:$saId" \
     --role roles/artifactregistry.writer
-
+gcloud services enable ondemandscanning.googleapis.com
 gcloud projects add-iam-policy-binding $artifactRegistryProjectId \
     --member=serviceAccount:$saId \
     --role=roles/ondemandscanning.admin
 
-gcloud iam service-accounts keys create ~/tmp/$saName.json \
-    --iam-account $saId
+# Setup GitHub actions variables
 gh auth login --web
 gh secret set CONTAINER_REGISTRY_PUSH_PRIVATE_KEY < ~/tmp/$saName.json
 rm ~/tmp/$saName.json
