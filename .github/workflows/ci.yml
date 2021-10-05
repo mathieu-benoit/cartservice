@@ -32,18 +32,22 @@ jobs:
           gcloud auth configure-docker ${{ secrets.CONTAINER_REGISTRY_HOST_NAME }} --quiet
       - name: manage base images
         run: |
-          # Grap the sdk base image in our private registry
+          # Grab the sdk base image in our private registry
           baseImage=$(cat Dockerfile | grep 'mcr.microsoft.com/dotnet/sdk')
           baseImage=($baseImage)
           docker pull ${baseImage[1]}
-          # FIXME to complete: docker tag, docker push
-          # Grap the runtime base image in our private registry
+          newImage=$(echo ${baseImage[1]} | sed "s,mcr.microsoft.com,${IMAGE_BASE_NAME},g")
+          docker tag ${baseImage[1]} $newImage
+          docker push $newImage
+          # Grab the runtime base image in our private registry
           baseImage=$(cat Dockerfile | grep 'mcr.microsoft.com/dotnet/runtime-deps')
           baseImage=($baseImage)
           docker pull ${baseImage[1]}
-          # FIXME to complete: docker tag, docker push
+          newImage=$(echo ${baseImage[1]} | sed "s,mcr.microsoft.com,${IMAGE_BASE_NAME},g")
+          docker tag ${baseImage[1]} $newImage
+          docker push $newImage
           # Use the base images from our own private registry
-          sed -i "s,FROM mcr.microsoft.com,FROM ${IMAGE_BASE_NAME},g" Dockerfile
+          sed -i "s,mcr.microsoft.com,${IMAGE_BASE_NAME},g" Dockerfile
       - name: build container
         run: |
           docker build --tag ${IMAGE_NAME} .
