@@ -35,12 +35,12 @@ jobs:
           # Grap the sdk base image in our private registry
           baseImage=$(cat Dockerfile | grep 'mcr.microsoft.com/dotnet/sdk')
           baseImage=($baseImage)
-          docker pull echo ${baseImage[1]}
+          docker pull ${baseImage[1]}
           # FIXME to complete: docker tag, docker push
           # Grap the runtime base image in our private registry
           baseImage=$(cat Dockerfile | grep 'mcr.microsoft.com/dotnet/runtime-deps')
           baseImage=($baseImage)
-          docker pull echo ${baseImage[1]}
+          docker pull ${baseImage[1]}
           # FIXME to complete: docker tag, docker push
           # Use the base images from our own private registry
           sed -i "s,FROM mcr.microsoft.com,FROM ${IMAGE_BASE_NAME},g" Dockerfile
