@@ -27,12 +27,25 @@ jobs:
           imageBaseName=${{ secrets.CONTAINER_REGISTRY_HOST_NAME }}/${{ secrets.CONTAINER_REGISTRY_PROJECT_ID }}/${{ secrets.CONTAINER_REGISTRY_NAME }}
           echo "IMAGE_BASE_NAME=$imageBaseName" >> $GITHUB_ENV
           echo "IMAGE_NAME=$imageBaseName/boutique/cartservice:$shortSha" >> $GITHUB_ENV
-      - name: replace base images registry
+      - name: sign-in to artifact registry
         run: |
+          gcloud auth configure-docker ${{ secrets.CONTAINER_REGISTRY_HOST_NAME }} --quiet
+      - name: manage base images
+        run: |
+          # Grap the sdk base image in our private registry
+          baseImage=$(cat Dockerfile | grep 'mcr.microsoft.com/dotnet/sdk')
+          baseImage=($baseImage)
+          docker pull echo ${baseImage[1]}
+          # FIXME to complete: docker tag, docker push
+          # Grap the runtime base image in our private registry
+          baseImage=$(cat Dockerfile | grep 'mcr.microsoft.com/dotnet/runtime-deps')
+          baseImage=($baseImage)
+          docker pull echo ${baseImage[1]}
+          # FIXME to complete: docker tag, docker push
+          # Use the base images from our own private registry
           sed -i "s,FROM mcr.microsoft.com,FROM ${IMAGE_BASE_NAME},g" Dockerfile
       - name: build container
         run: |
-          gcloud auth configure-docker ${{ secrets.CONTAINER_REGISTRY_HOST_NAME }} --quiet
           docker build --tag ${IMAGE_NAME} .
           imageSize=$(printf %.2f "$(($(docker image inspect ${IMAGE_NAME} --format='{{.Size}}') * 10**2 / $(printf '%5.0f\n' 1e6)))e-2")
           echo "IMAGE_SIZE=$imageSize" >> $GITHUB_ENV
