@@ -70,23 +70,19 @@ gcloud beta billing projects link $projectId \
     --billing-account $billingAccountId
 
 # Setup Service account
+artifactRegistryProjectId=FIXME
 saName=gha-containerregistry-push-sa
-saId=$saName@$artifactRegistryProjectId.iam.gserviceaccount.com
+saId=$saName@$projectId.iam.gserviceaccount.com
 gcloud iam service-accounts create $saName \
     --display-name=$saName
 gcloud iam service-accounts keys create ~/tmp/$saName.json \
     --iam-account $saId
 
 # Setup Artifact Registry
-artifactRegistryProjectId=FIXME
 artifactRegistryName=FIXME
 artifactRegistryLocation=FIXME
-gcloud artifacts repositories add-iam-policy-binding $containerRegistryRepository \
-    --project=$containerRegistryProjectId \
-    --location=$containerRegistryLocation \
-    --member=serviceAccount:$cloudBuildSa \
-    --role=roles/artifactregistry.writer
 gcloud artifacts repositories add-iam-policy-binding $artifactRegistryName \
+    --project $artifactRegistryProjectId \
     --location $artifactRegistryLocation \
     --member "serviceAccount:$saId" \
     --role roles/artifactregistry.writer
@@ -102,6 +98,10 @@ rm ~/tmp/$saName.json
 gh secret set CONTAINER_REGISTRY_PROJECT_ID -b"${artifactRegistryProjectId}"
 gh secret set CONTAINER_REGISTRY_NAME -b"${artifactRegistryName}"
 gh secret set CONTAINER_REGISTRY_HOST_NAME -b"${artifactRegistryLocation}-docker.pkg.dev"
+
+# Delete the default compute engine service account if you don't have have the Org policy iam.automaticIamGrantsForDefaultServiceAccounts in place
+projectNumber="$(gcloud projects describe $projectId --format='get(projectNumber)')"
+gcloud iam service-accounts delete $projectNumber-compute@developer.gserviceaccount.com --quiet
 ```
 
 ## Leverage Memorystore (Redis)
