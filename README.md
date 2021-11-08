@@ -99,7 +99,7 @@ gh secret set CONTAINER_REGISTRY_PROJECT_ID -b"${artifactRegistryProjectId}"
 gh secret set CONTAINER_REGISTRY_NAME -b"${artifactRegistryName}"
 gh secret set CONTAINER_REGISTRY_HOST_NAME -b"${artifactRegistryLocation}-docker.pkg.dev"
 
-# Delete the default compute engine service account if you don't have have the Org policy iam.automaticIamGrantsForDefaultServiceAccounts in place
+# Delete the default compute engine service account if you don't have the Org policy iam.automaticIamGrantsForDefaultServiceAccounts in place
 projectNumber="$(gcloud projects describe $projectId --format='get(projectNumber)')"
 gcloud iam service-accounts delete $projectNumber-compute@developer.gserviceaccount.com --quiet
 ```
@@ -107,9 +107,11 @@ gcloud iam service-accounts delete $projectNumber-compute@developer.gserviceacco
 ## Leverage Memorystore (Redis)
 
 ```
+gkeRegion=us-east4
+gkeZone=us-east4-a
 gcloud services enable redis.googleapis.com
-gcloud redis instances create cart --size=1 --region=us-east4 --zone=us-east4-a --redis-version=redis_6_x
-gcloud redis instances describe cart --region=us-east4 --format='get(host)'
+gcloud redis instances create cart --size=1 --region=$region --zone=$zone --redis-version=redis_6_x
+gcloud redis instances describe cart --region=$region --format='get(host)'
 # Set the `REDIS_ADDR` environment variable with that `host` IP address.
 ```
 
