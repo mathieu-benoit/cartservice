@@ -98,15 +98,15 @@ jobs:
         if: ${{ github.event_name == 'push' }}
         run: |
           docker push ${IMAGE_NAME}
-      - name: create release
-        uses: actions/create-release@v1.1.4
-        if: ${{ github.event_name == 'push' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.IMAGE_TAG }}
-          release_name: ${{ env.IMAGE_TAG }}
-          draft: false
-          prerelease: false
-          body: |
-            Size: ${{ env.IMAGE_SIZE }}MB
+      #- name: create release
+      #  uses: actions/create-release@v1.1.4
+      #  if: ${{ github.event_name == 'push' }}
+      #  env:
+      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #  with:
+      #    tag_name: ${{ env.IMAGE_TAG }}
+      #    release_name: ${{ env.IMAGE_TAG }}
+      #    draft: false
+      #    prerelease: false
+      #    body: |
+      #      Size: ${{ env.IMAGE_SIZE }}MB
