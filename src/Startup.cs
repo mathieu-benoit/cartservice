@@ -16,7 +16,8 @@ string redisAddress = builder.Configuration["REDIS_ADDR"];
 ICartStore cartStore = null;
 if (!string.IsNullOrEmpty(redisAddress))
 {
-    cartStore = new RedisCartStore(redisAddress);
+    string password = builder.Configuration["REDIS_AUTH"];
+    cartStore = new RedisCartStore(redisAddress, password);
 }
 else
 {
