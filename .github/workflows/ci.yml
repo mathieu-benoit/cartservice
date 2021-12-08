@@ -15,11 +15,13 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2.4.0
-      - uses: google-github-actions/setup-gcloud@v0.3
+      - uses: google-github-actions/auth@v0.4.2
         with:
-          version: latest
           project_id: ${{ secrets.CONTAINER_REGISTRY_PROJECT_ID }}
           service_account_key: ${{ secrets.CONTAINER_REGISTRY_PUSH_PRIVATE_KEY }}
+      - uses: google-github-actions/setup-gcloud@v0.3.0
+        with:
+          version: latest
       - name: prepare environment variables
         run: |
           shortSha=`echo ${GITHUB_SHA} | cut -c1-7`
