@@ -41,7 +41,7 @@ namespace cartservice.cartstore
             var cart = new Hipstershop.Cart();
             emptyCartBytes = cart.ToByteArray();
             connectionString = $"{redisAddress},ssl=false,allowAdmin=true,connectRetry=5";
-            if(string.IsNullOrEmpty(redisAuth))
+            if(!string.IsNullOrEmpty(redisAuth))
                 connectionString = $"{connectionString},password={redisAuth}";
 
             redisConnectionOptions = ConfigurationOptions.Parse(connectionString);
