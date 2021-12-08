@@ -5,7 +5,7 @@ This `cartservice` is isolating one of the apps for the `Online Boutique` repo f
 _Note: this repo, as my playground for demo purposes, is also a good place for me to test things and give back to the original repo [by contributing to it](https://github.com/GoogleCloudPlatform/microservices-demo/pulls?q=is%3Apr+author%3Amathieu-benoit)._
 
 This app has those specifications:
-- Is a .NET 5 app
+- Is a .NET 6 app
 - Has `Dockerfile` for Linux
 - Is a `gRPC` endpoint
 - Talks to `redis`
@@ -109,10 +109,13 @@ gcloud iam service-accounts delete $projectNumber-compute@developer.gserviceacco
 ```
 gkeRegion=us-east4
 gkeZone=us-east4-a
+redisName=cart
 gcloud services enable redis.googleapis.com
-gcloud redis instances create cart --size=1 --region=$region --zone=$zone --redis-version=redis_6_x
-gcloud redis instances describe cart --region=$region --format='get(host)'
+gcloud redis instances create $redisName --size=1 --region=$region --zone=$zone --redis-version=redis_6_x
+gcloud redis instances describe $redisName --region=$region --format='get(host)'
 # Set the `REDIS_ADDR` environment variable with that `host` IP address.
+gcloud redis instances get-auth-string $redisName --region=$region
+# Set the `REDIS_AUTH` environment variable with that auth string.
 ```
 
 _Note: there is few requirements about how and where create your Memorystore instance to be able to use it with GKE, [see here for more information](https://cloud.google.com/memorystore/docs/redis/connect-redis-instance-gke)._
