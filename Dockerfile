@@ -1,5 +1,5 @@
 # https://mcr.microsoft.com/v2/dotnet/sdk/tags/list
-FROM mcr.microsoft.com/dotnet/sdk:6.0.100 AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0.101 AS build
 WORKDIR /app
 COPY src/cartservice.csproj ./src/
 WORKDIR /app/src
