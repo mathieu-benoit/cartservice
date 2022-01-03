@@ -111,10 +111,10 @@ gkeRegion=us-east4
 gkeZone=us-east4-a
 redisName=cart
 gcloud services enable redis.googleapis.com
-gcloud redis instances create $redisName --size=1 --region=$region --zone=$zone --redis-version=redis_6_x
-gcloud redis instances describe $redisName --region=$region --format='get(host)'
+gcloud redis instances create $redisName --size=1 --region=$gkeRegion --zone=$gkeZone --redis-version=redis_6_x
+gcloud redis instances describe $redisName --region=$gkeRegion --format='get(host)'
 # Set the `REDIS_ADDR` environment variable with that `host` IP address.
-gcloud redis instances get-auth-string $redisName --region=$region
+gcloud redis instances get-auth-string $redisName --region=$gkeRegion
 # Set the `REDIS_AUTH` environment variable with that auth string.
 ```
 
