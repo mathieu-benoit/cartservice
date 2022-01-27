@@ -13,12 +13,15 @@ env:
 jobs:
   job:
     runs-on: ubuntu-20.04
+    permissions:
+      contents: 'read'
+      id-token: 'write'
     steps:
       - uses: actions/checkout@v2.4.0
       - uses: google-github-actions/auth@v0.5.0
         with:
-          project_id: ${{ secrets.CONTAINER_REGISTRY_PROJECT_ID }}
-          credentials_json: ${{ secrets.CONTAINER_REGISTRY_PUSH_PRIVATE_KEY }}
+          workload_identity_provider: 'projects/875343227023/locations/global/workloadIdentityPools/wi-pool/providers/cartservice-github-repo'
+          service_account: 'gha-containerregistry-push-sa@cartservice-347.iam.gserviceaccount.com'
       - uses: google-github-actions/setup-gcloud@v0.4.0
         with:
           version: latest
