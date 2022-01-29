@@ -37,6 +37,8 @@ jobs:
           gcloud auth configure-docker ${{ secrets.CONTAINER_REGISTRY_HOST_NAME }} --quiet
           gcloud info
           gcloud config list
+          gcloud config set account gha-containerregistry-push-sa@cartservice-347.iam.gserviceaccount.com
+          gcloud config list
           docker pull ${IMAGE_BASE_NAME}/asm/proxyv2:1.12.2-asm.0-distroless
       - name: manage base images
         run: |
