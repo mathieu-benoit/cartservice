@@ -22,9 +22,9 @@ jobs:
         with:
           workload_identity_provider: 'projects/875343227023/locations/global/workloadIdentityPools/wi-pool/providers/cartservice-github-repo'
           service_account: 'gha-containerregistry-push-sa@cartservice-347.iam.gserviceaccount.com'
-      - uses: google-github-actions/setup-gcloud@v0.4.0
-        with:
-          version: latest
+      #- uses: google-github-actions/setup-gcloud@v0.4.0
+      #  with:
+      #    version: latest
       - name: prepare environment variables
         run: |
           shortSha=`echo ${GITHUB_SHA} | cut -c1-7`
