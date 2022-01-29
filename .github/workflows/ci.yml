@@ -35,6 +35,7 @@ jobs:
       - name: sign-in to artifact registry
         run: |
           gcloud auth configure-docker ${{ secrets.CONTAINER_REGISTRY_HOST_NAME }} --quiet
+          docker pull ${IMAGE_BASE_NAME}/asm/proxyv2:1.12.2-asm.0-distroless
       - name: manage base images
         run: |
           # Grab the sdk base image in our private registry
