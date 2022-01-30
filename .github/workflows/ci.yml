@@ -37,7 +37,6 @@ jobs:
       - name: sign-in to artifact registry
         run: |
           echo "${{ steps.gcp-auth.outputs.access_token }}" | docker login -u oauth2accesstoken --password-stdin ${{ secrets.CONTAINER_REGISTRY_HOST_NAME }}
-          docker pull ${IMAGE_BASE_NAME}/asm/proxyv2:1.12.2-asm.0-distroless
       - name: manage base images
         run: |
           # Grab the sdk base image in our private registry
@@ -61,21 +60,21 @@ jobs:
           docker build --tag ${IMAGE_NAME} .
           imageSize=$(printf %.2f "$(($(docker image inspect ${IMAGE_NAME} --format='{{.Size}}') * 10**2 / $(printf '%5.0f\n' 1e6)))e-2")
           echo "IMAGE_SIZE=$imageSize"
-      - name: dockle
-        run: |
-          docker run -v /var/run/docker.sock:/var/run/docker.sock --rm goodwithtech/dockle:latest --exit-code 1 --exit-level fatal ${IMAGE_NAME}
-      - name: run trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.2.1
-        with:
-          image-ref: ${{ env.IMAGE_NAME }}
-          format: 'template'
-          template: '@/contrib/sarif.tpl'
-          output: 'trivy-results.sarif'
-          severity: ${{ env.SEVERITY }}
-      - name: upload trivy scan results to GitHub security tab
-        uses: github/codeql-action/upload-sarif@v1.0.29
-        with:
-          sarif_file: 'trivy-results.sarif'
+      #- name: dockle
+      #  run: |
+      #    docker run -v /var/run/docker.sock:/var/run/docker.sock --rm goodwithtech/dockle:latest --exit-code 1 --exit-level fatal ${IMAGE_NAME}
+      #- name: run trivy vulnerability scanner
+      #  uses: aquasecurity/trivy-action@0.2.1
+      #  with:
+      #    image-ref: ${{ env.IMAGE_NAME }}
+      #    format: 'template'
+      #    template: '@/contrib/sarif.tpl'
+      #    output: 'trivy-results.sarif'
+      #    severity: ${{ env.SEVERITY }}
+      #- name: upload trivy scan results to GitHub security tab
+      #  uses: github/codeql-action/upload-sarif@v1.0.29
+      #  with:
+      #    sarif_file: 'trivy-results.sarif'
       - name: run container locally as a test
         run: |
           docker run -d -p 8080:8080 --read-only --cap-drop=ALL --user=1000 ${IMAGE_NAME}
