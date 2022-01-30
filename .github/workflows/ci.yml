@@ -18,12 +18,12 @@ jobs:
       id-token: 'write'
     steps:
       - uses: actions/checkout@v2.4.0
-      - id: auth
+      - id: gcp-auth
         uses: google-github-actions/auth@v0.5.0
         with:
           workload_identity_provider: 'projects/875343227023/locations/global/workloadIdentityPools/wi-pool/providers/cartservice-github-repo'
           service_account: 'gha-containerregistry-push-sa@cartservice-347.iam.gserviceaccount.com'
-          create_credentials_file: true
+          token_format: 'access_token'
       #- uses: google-github-actions/setup-gcloud@v0.4.0
       #  with:
       #    version: latest
@@ -36,8 +36,7 @@ jobs:
           echo "IMAGE_NAME=$imageBaseName/boutique/cartservice:$shortSha" >> $GITHUB_ENV
       - name: sign-in to artifact registry
         run: |
-          gcloud auth login --brief --cred-file="${{ steps.auth.outputs.credentials_file_path }}"
-          gcloud auth configure-docker ${{ secrets.CONTAINER_REGISTRY_HOST_NAME }} --quiet
+          echo "${{ steps.gcp-auth.outputs.access_token }}" | docker login -u oauth2accesstoken --password-stdin ${{ secrets.CONTAINER_REGISTRY_HOST_NAME }}
           docker pull ${IMAGE_BASE_NAME}/asm/proxyv2:1.12.2-asm.0-distroless
       - name: manage base images
         run: |
